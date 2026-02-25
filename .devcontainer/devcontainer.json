@@ -1,0 +1,101 @@
+// Dev Container definition for Microsoft Security Copilot Agent development.
+// Base image: fedora:latest  |  Default user: sec-copilot
+{
+    "name": "Security Copilot Agent",
+
+    // ── Build ───────────────────────────────────────────────────────────────
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+
+    // ── Remote user (non-root) ───────────────────────────────────────────────
+    "remoteUser": "sec-copilot",
+
+    // ── Container environment variables ─────────────────────────────────────
+    // Override in a .devcontainer/.env file (git-ignored) or in your shell profile.
+    "containerEnv": {
+        "AZURE_TENANT_ID": "${localEnv:AZURE_TENANT_ID}",
+        "AZURE_SUBSCRIPTION_ID": "${localEnv:AZURE_SUBSCRIPTION_ID}",
+        "AZURE_RESOURCE_GROUP": "${localEnv:AZURE_RESOURCE_GROUP}",
+        "AZURE_WORKSPACE_NAME": "${localEnv:AZURE_WORKSPACE_NAME}",
+        "AZURE_WORKSPACE_ID": "${localEnv:AZURE_WORKSPACE_ID}"
+    },
+
+    // ── VS Code customisations ───────────────────────────────────────────────
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // ── GitHub Copilot ──────────────────────────────────────────
+                "GitHub.copilot",
+                "GitHub.copilot-chat",
+
+                // ── PowerShell ──────────────────────────────────────────────
+                "ms-vscode.powershell",
+
+                // ── Azure tooling ───────────────────────────────────────────
+                "ms-vscode.azure-account",
+                "ms-azuretools.vscode-azureresourcegroups",
+                "msazurermtools.azurerm-vscode-tools",
+                "ms-azure-devops.azure-pipelines",
+
+                // ── Sentinel / KQL / Log Analytics ─────────────────────────
+                "azure-sentinel.vscode-sentinel",
+                "ms-azure-devops.azure-kusto-analytics",
+
+                // ── Language & format support ───────────────────────────────
+                "redhat.vscode-yaml",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+
+                // ── Infrastructure as Code ──────────────────────────────────
+                "ms-azuretools.vscode-bicep",
+                "hashicorp.terraform",
+
+                // ── Container / devcontainer support ────────────────────────
+                "ms-vscode-remote.remote-containers",
+                "ms-azuretools.vscode-docker",
+
+                // ── Git helpers ─────────────────────────────────────────────
+                "eamodio.gitlens",
+                "github.vscode-pull-request-github"
+            ],
+
+            "settings": {
+                // Terminal
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.profiles.linux": {
+                    "bash": { "path": "/bin/bash" },
+                    "pwsh": { "path": "/usr/bin/pwsh", "icon": "terminal-powershell" }
+                },
+
+                // PowerShell
+                "powershell.powerShellDefaultVersion": "PowerShell",
+                "powershell.promptToUpdatePowerShell": false,
+
+                // Python
+                "python.defaultInterpreterPath": "/usr/bin/python3",
+
+                // Editor
+                "editor.formatOnSave": true,
+                "editor.tabSize": 4,
+                "files.trimTrailingWhitespace": true,
+                "files.insertFinalNewline": true,
+
+                // YAML schema store
+                "yaml.schemas": {
+                    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml"
+                }
+            }
+        }
+    },
+
+    // ── Post-create hook ─────────────────────────────────────────────────────
+    "postCreateCommand": "bash .devcontainer/postCreate.sh",
+
+    // ── Mount workspace at standard location ─────────────────────────────────
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/sec-copilot/workspace,type=bind,consistency=cached",
+    "workspaceFolder": "/home/sec-copilot/workspace"
+}

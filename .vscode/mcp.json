@@ -1,0 +1,96 @@
+// .vscode/mcp.json
+// MCP (Model Context Protocol) server configuration for Microsoft Sentinel.
+//
+// GitHub Copilot Chat will discover the servers listed here and make their
+// tools available inside the chat panel automatically.
+//
+// Prerequisites before using:
+//   1.  Authenticate with Azure:  az login
+//   2.  Set the environment variables below in your shell profile or in a
+//       .devcontainer/.env file (git-ignored):
+//
+//         AZURE_TENANT_ID          – your Azure Active Directory tenant ID
+//         AZURE_SUBSCRIPTION_ID    – the subscription that hosts the workspace
+//         AZURE_RESOURCE_GROUP     – the resource group of your Sentinel workspace
+//         AZURE_WORKSPACE_NAME     – the Log Analytics workspace name
+//         AZURE_WORKSPACE_ID       – the Log Analytics workspace GUID
+//
+// Reference: https://aka.ms/azure/mcp  |  https://aka.ms/sentinel
+{
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "tenant-id",
+            "description": "Azure Tenant ID",
+            "default": "${localEnv:AZURE_TENANT_ID}"
+        },
+        {
+            "type": "promptString",
+            "id": "subscription-id",
+            "description": "Azure Subscription ID",
+            "default": "${localEnv:AZURE_SUBSCRIPTION_ID}"
+        },
+        {
+            "type": "promptString",
+            "id": "resource-group",
+            "description": "Azure Resource Group containing the Sentinel workspace",
+            "default": "${localEnv:AZURE_RESOURCE_GROUP}"
+        },
+        {
+            "type": "promptString",
+            "id": "workspace-name",
+            "description": "Log Analytics workspace name (Sentinel workspace)",
+            "default": "${localEnv:AZURE_WORKSPACE_NAME}"
+        },
+        {
+            "type": "promptString",
+            "id": "workspace-id",
+            "description": "Log Analytics workspace GUID",
+            "default": "${localEnv:AZURE_WORKSPACE_ID}"
+        }
+    ],
+
+    "servers": {
+        // ── Azure MCP server ─────────────────────────────────────────────────
+        // Provides tools for Azure Resource Manager, Log Analytics / Sentinel
+        // queries, and other Azure control-plane operations.
+        "azure": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "--yes",
+                "@azure/mcp@latest",
+                "server",
+                "start"
+            ],
+            "env": {
+                "AZURE_TENANT_ID": "${input:tenant-id}",
+                "AZURE_SUBSCRIPTION_ID": "${input:subscription-id}"
+            }
+        },
+
+        // ── Sentinel MCP server ──────────────────────────────────────────────
+        // Runs the Azure MCP server scoped to the Sentinel workspace so that
+        // Copilot Chat can run KQL queries, manage analytics rules, incidents,
+        // watchlists, and other Sentinel resources directly from the chat panel.
+        "sentinel": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+                "--yes",
+                "@azure/mcp@latest",
+                "server",
+                "start",
+                "--resource-group", "${input:resource-group}",
+                "--workspace", "${input:workspace-name}"
+            ],
+            "env": {
+                "AZURE_TENANT_ID": "${input:tenant-id}",
+                "AZURE_SUBSCRIPTION_ID": "${input:subscription-id}",
+                "AZURE_RESOURCE_GROUP": "${input:resource-group}",
+                "AZURE_WORKSPACE_NAME": "${input:workspace-name}",
+                "AZURE_WORKSPACE_ID": "${input:workspace-id}"
+            }
+        }
+    }
+}
