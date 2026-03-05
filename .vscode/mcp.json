@@ -16,5 +16,6 @@
             "url": "https://sentinel.microsoft.com/mcp/graph",
             "type": "http"
         },
-        "inputs": []
+	},
+    "inputs": []
 }
