@@ -12,6 +12,9 @@
 			"url": "https://sentinel.microsoft.com/mcp/triage",
 			"type": "http"
 		},
+        "Sentinel MCP server: Graph": {
+            "url": "https://sentinel.microsoft.com/mcp/graph",
+            "type": "http"
         },
         "inputs": []
 }
